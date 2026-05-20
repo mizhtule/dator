@@ -74,10 +74,9 @@ The `debezium` user's grants are the minimum required for Debezium to read the b
 
 | Variable | Description |
 |---|---|
-| `MYSQL_ROOT_PASSWORD` | Root password |
-| `MYSQL_AIRFLOW_PASSWORD` | Password for `airflow` user |
-| `MYSQL_DATA_PLATFORM_PASSWORD` | Password for `data_platform` user |
-| `MYSQL_DEBEZIUM_PASSWORD` | Password for `debezium` user |
+| `MYSQL_ROOT_PASSWORD` | Root password (standard MySQL Docker env var) |
+
+The `airflow`, `data_platform`, and `debezium` users are created with passwords hardcoded directly in their respective init SQL files. `.env.example` documents suggested values for those passwords as a reference, but the MySQL container does not consume them — they exist only to remind developers what to set when modifying the SQL files.
 
 ## Decisions
 
