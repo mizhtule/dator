@@ -4,7 +4,7 @@
 
 **Goal:** Stand up a MySQL 8.0 container accessible on host port 3306, pre-configured for Debezium CDC, with isolated databases for Airflow and the data platform.
 
-**Architecture:** A single `docker-compose.yml` at the repo root defines the `dator-mysql` service. MySQL config is bind-mounted from `mysql/conf.d/` and init SQL scripts from `mysql/docker-entrypoint-initdb.d/` run once on first start to create databases and users. Data is persisted in a named Docker volume.
+**Architecture:** A single `docker-compose.yml` at the repo root defines the `dator_mysql` service. MySQL config is bind-mounted from `mysql/conf.d/` and init SQL scripts from `mysql/docker-entrypoint-initdb.d/` run once on first start to create databases and users. Data is persisted in a named Docker volume.
 
 **Tech Stack:** Docker, Docker Compose, MySQL 8.0
 
@@ -168,7 +168,7 @@ git commit -m "feat: add MySQL init scripts for airflow, data_platform, and debe
 services:
   mysql:
     image: mysql:8.0
-    container_name: dator-mysql
+    container_name: dator_mysql
     ports:
       - "3306:3306"
     environment:
@@ -202,12 +202,12 @@ Verify the container starts, all databases and users exist, and binary logging i
 docker compose up -d
 ```
 
-Expected: `Container dator-mysql  Started`
+Expected: `Container dator_mysql  Started`
 
 - [ ] **Step 2: Wait for MySQL to be ready**
 
 ```bash
-docker exec dator-mysql mysqladmin --user=root --password=rootpassword ping --wait --connect-timeout=30
+docker exec dator_mysql mysqladmin --user=root --password=rootpassword ping --wait --connect-timeout=30
 ```
 
 Expected: `mysqld is alive`
@@ -215,7 +215,7 @@ Expected: `mysqld is alive`
 - [ ] **Step 3: Verify databases**
 
 ```bash
-docker exec dator-mysql mysql -u root -prootpassword -e "SHOW DATABASES;"
+docker exec dator_mysql mysql -u root -prootpassword -e "SHOW DATABASES;"
 ```
 
 Expected output includes:
@@ -227,7 +227,7 @@ data_platform
 - [ ] **Step 4: Verify users**
 
 ```bash
-docker exec dator-mysql mysql -u root -prootpassword \
+docker exec dator_mysql mysql -u root -prootpassword \
   -e "SELECT User, Host FROM mysql.user WHERE User IN ('airflow', 'data_platform', 'debezium');"
 ```
 
@@ -245,7 +245,7 @@ Expected:
 - [ ] **Step 5: Verify binary log config**
 
 ```bash
-docker exec dator-mysql mysql -u root -prootpassword \
+docker exec dator_mysql mysql -u root -prootpassword \
   -e "SHOW VARIABLES WHERE Variable_name IN ('log_bin','binlog_format','binlog_row_image','server_id');"
 ```
 
@@ -266,8 +266,8 @@ Expected:
 Use a temporary container to connect through the host-mapped port (tests the actual port binding, not internal networking):
 
 ```bash
-docker run --rm --network host mysql:8.0 \
-  mysql -h 127.0.0.1 -P 3306 -u airflow -pairflow -e "SELECT 'ok' AS status;"
+docker run --rm mysql:8.0 \
+  mysql -h host.docker.internal -P 3306 -u airflow -pairflow -e "SELECT 'ok' AS status;"
 ```
 
 Expected:
@@ -289,8 +289,8 @@ docker compose down
 
 ```bash
 docker compose up -d
-docker exec dator-mysql mysqladmin --user=root --password=rootpassword ping --wait --connect-timeout=30
-docker exec dator-mysql mysql -u root -prootpassword -e "SHOW DATABASES;"
+docker exec dator_mysql mysqladmin --user=root --password=rootpassword ping --wait --connect-timeout=30
+docker exec dator_mysql mysql -u root -prootpassword -e "SHOW DATABASES;"
 docker compose down
 ```
 

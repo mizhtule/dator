@@ -31,7 +31,7 @@ dator/
 ## Service Configuration
 
 **Image:** `mysql:8.0`
-**Container name:** `dator-mysql`
+**Container name:** `dator_mysql`
 **Port:** `3306:3306` (host → container)
 **Restart policy:** `unless-stopped`
 
